@@ -1,45 +1,38 @@
-FROM python:3.11-slim AS base
+# Use a Python image with uv pre-installed
+FROM ghcr.io/astral-sh/uv:python3.11-bookworm
 
-# Set Python environment variables
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PYTHONFAULTHANDLER=1 \
-    LANG=C.UTF-8 \
-    LC_ALL=C.UTF-8
-
-# Install basic dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
-
-# Upgrade pip
-RUN pip install --no-cache-dir --upgrade pip
-
-FROM base AS builder
-
-# Create and activate virtual environment
-RUN python -m venv /.venv
-ENV PATH="/.venv/bin:$PATH"
-
-# Install dependencies
-COPY pyproject.toml .
-RUN pip install --no-cache-dir .
-
-FROM base as runtime
-
-# Set working directory
+# Install the project into `/app`
 WORKDIR /app
 
-# Copy virtual environment from builder
-COPY --from=builder /.venv /.venv
-ENV PATH="/.venv/bin:$PATH"
+# Enable bytecode compilation
+ENV UV_COMPILE_BYTECODE=1
 
-# Copy application code
-COPY . .
+# Copy from the cache instead of linking since it's a mounted volume
+ENV UV_LINK_MODE=copy
 
-# Expose port (adjust if needed)
-EXPOSE 8000
+# Install the project's dependencies using the lockfile and settings
+RUN --mount=type=cache,target=/root/.cache/uv \
+  --mount=type=bind,source=uv.lock,target=uv.lock \
+  --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+  uv sync --frozen --no-install-project --no-dev
 
-# Run the application
+# Then, add the rest of the project source code and install it
+# Installing separately from its dependencies allows optimal layer caching
+ADD . /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+  uv sync --frozen --no-dev
+
+# Place executables in the environment at the front of the path
+ENV PATH="/app/.venv/bin:$PATH"
+
+# Reset the entrypoint, don't invoke `uv`
+ENTRYPOINT []
+
+# Run setup.py
+
+RUN python setup.py
+
+# Run the FastAPI application by default
+# Uses `fastapi dev` to enable hot-reloading when the `watch` sync occurs
+# Uses `--host 0.0.0.0` to allow access from outside the container
 CMD ["python", "main.py"]

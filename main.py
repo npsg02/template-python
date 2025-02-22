@@ -13,7 +13,7 @@ def main() -> None:
         import src.modules.api
 
     except Exception as e:
-        print(f"Application failed to start: {e}", exc_info=True)
+        logging.error(f"Application failed to start: {e}", exc_info=True)
         raise
 
 
