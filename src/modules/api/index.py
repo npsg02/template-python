@@ -1,5 +1,7 @@
-import uvicorn 
+import uvicorn
 from .app import app as api_app
+import logging
+
 
 def main():
     """Main application entry point."""
@@ -8,10 +10,12 @@ def main():
         uvicorn.run(
             api_app,
             host="0.0.0.0",
-            port=8800,
+            port=8080,
             reload=False,
         )
     except Exception as e:
-        print(f"Application failed to start: {e}", exc_info=True)
+        logging.error(f"Application failed to start: {e}", exc_info=True)
         raise
+
+
 main()

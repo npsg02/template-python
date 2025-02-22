@@ -1,3 +1,16 @@
+---
+title: Python Project Template
+emoji: 🟧
+colorFrom: yellow
+colorTo: purple
+sdk: docker
+tags:
+- Python
+fullwidth: true
+license: mit
+app_port: 8080
+---
+
 # Python Project Template
 
 A modern Python project template with best practices for development, testing, and deployment.

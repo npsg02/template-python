@@ -5,11 +5,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .routes import v1_router
 
+
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
-    app = FastAPI(
-        
-    )
+    app = FastAPI()
 
     # Add CORS middleware
     app.add_middleware(
@@ -34,6 +33,7 @@ def create_app() -> FastAPI:
         pass
 
     return app
+
 
 # Create default app instance
 app = create_app()
