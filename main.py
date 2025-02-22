@@ -6,10 +6,6 @@ from pathlib import Path
 from typing import Dict
 
 
-
-
-
-
 def main() -> None:
     """Main application entry point."""
     try:
