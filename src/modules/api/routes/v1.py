@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter
 from typing import Dict, List
-
+from src.modules.transporter import publish_message
 
 # Create v1 router
 router = APIRouter(prefix='/v1', tags=['v1'])
@@ -10,6 +10,7 @@ router = APIRouter(prefix='/v1', tags=['v1'])
 @router.get("/hello")
 async def hello_world() -> Dict[str, str]:
     """Hello world endpoint."""
+    publish_message("hello-python", "Hello from FastAPI!")
     return {"message": "Hello, World!"}
 
 @router.get("/health")
