@@ -11,6 +11,7 @@ in pkgs.mkShell {
     docker
     docker-compose
     nodejs_18
+    nodemon
     nodePackages.ts-node
   ];
 
@@ -24,9 +25,10 @@ in pkgs.mkShell {
     else
       echo "Virtual environment not found, creating one..."
     fi
-
-    alias dev='python3 main.py'
     alias python='python3'
+    alias dev1='python3 main.py'
+    alias dev='nodemon --exec python main.py --ext py --watch src/'
+
     
     which python3
 

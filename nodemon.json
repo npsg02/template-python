@@ -1,0 +1,5 @@
+{
+  "watch": ["src", "main.py"],
+  "ext": "py",
+  "exec": "python main.py"
+}
