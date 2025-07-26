@@ -31,6 +31,9 @@ class AppConfig:
         )
 
 
+print("AppConfig loaded from environment variables:", AppConfig.from_env())
+
+
 def load_json_config(path: Path) -> dict[str, Any]:
     """Load configuration from JSON file.
 

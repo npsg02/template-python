@@ -1,7 +1,12 @@
 """FastAPI application factory."""
 
+from typing import List
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
 
 from .routes import v1_router
 
@@ -21,6 +26,7 @@ class ConnectionManager:
             await connection.send_text(message)
 
 manager = ConnectionManager()
+templates = Jinja2Templates(directory="templates")
 
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
@@ -34,6 +40,8 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    app.mount("/static", StaticFiles(directory="static"), name="static")
 
     # Include routers
     app.include_router(v1_router)
@@ -59,6 +67,11 @@ def create_app() -> FastAPI:
         except WebSocketDisconnect:
             manager.disconnect(websocket)
             await manager.broadcast("A client disconnected")
+
+
+    @app.get("/room/{room_name}", response_class=HTMLResponse)
+    async def broadcaster(request: Request, room_name: str):
+        return templates.TemplateResponse("broadcaster.html", {"request": request, "room_name": room_name})
 
     return app
 
