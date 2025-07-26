@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Broadcaster - WebRTC Room</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <h1>Broadcaster - Room: <span id="roomName"></span></h1>
+    <video id="localVideo" autoplay muted playsinline></video>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+      const roomName = window.location.pathname.split("/").pop();
+      document.getElementById("roomName").textContent = roomName;
+      let peer;
+
+      socket.emit("join-room", { roomName, type: "broadcaster" });
+
+      async function startStream() {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true,
+        });
+        document.getElementById("localVideo").srcObject = stream;
+
+        // Wait for viewer
+        socket.on("signal", async ({ from, data }) => {
+          if (!peer) {
+            peer = new RTCPeerConnection();
+            stream.getTracks().forEach((track) => peer.addTrack(track, stream));
+            peer.onicecandidate = (e) => {
+              if (e.candidate)
+                socket.emit("signal", {
+                  to: from,
+                  data: { candidate: e.candidate },
+                });
+            };
+            peer.onnegotiationneeded = async () => {
+              const offer = await peer.createOffer();
+              await peer.setLocalDescription(offer);
+              socket.emit("signal", {
+                to: from,
+                data: { desc: peer.localDescription },
+              });
+            };
+          }
+          if (data.desc) {
+            await peer.setRemoteDescription(data.desc);
+            if (data.desc.type === "offer") {
+              const answer = await peer.createAnswer();
+              await peer.setLocalDescription(answer);
+              socket.emit("signal", {
+                to: from,
+                data: { desc: peer.localDescription },
+              });
+            }
+          }
+          if (data.candidate) await peer.addIceCandidate(data.candidate);
+        });
+      }
+      startStream();
+    </script>
+  </body>
+</html>
