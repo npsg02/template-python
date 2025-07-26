@@ -27,9 +27,8 @@ in pkgs.mkShell {
     fi
     alias python='python3'
     alias dev1='python3 main.py'
-    alias dev='nodemon --exec python main.py --ext py --watch src/'
+    alias dev='nodemon'
 
-    
     which python3
 
   '';
