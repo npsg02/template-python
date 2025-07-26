@@ -2,6 +2,7 @@ import pika
 import threading
 
 credentials = pika.PlainCredentials('guest', 'guest')
+
 parameters = pika.ConnectionParameters(
     host='ubuntu',
     port=5672,  # default RabbitMQ port
@@ -37,6 +38,12 @@ def queue_listener(queue_name, host="localhost"):
 @queue_listener("hello-python")
 def process_message(msg):
     print(f"[x] Received: {msg}")
+
+
+@queue_listener("test")
+def test_queue_listener(msg):
+    # This function is just for testing the queue listener
+    print(f"[test] Received message: {msg}")
 
 
 # publish a message to the queue
