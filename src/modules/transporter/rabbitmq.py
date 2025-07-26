@@ -37,7 +37,7 @@ def queue_listener(queue_name, host="localhost"):
 
 @queue_listener("hello-python")
 def process_message(msg):
-    print(f"[x] Received: {msg}")
+    print(f"[rabbitmq][hello-python] Received: {msg}")
 
 
 @queue_listener("test")
@@ -47,7 +47,7 @@ def test_queue_listener(msg):
 
 
 # publish a message to the queue
-def publish_message(queue_name, message):
+def add_to_queue(queue_name, message):
     connection = pika.BlockingConnection(parameters)
     channel = connection.channel()
     # channel.queue_declare(queue=queue_name, durable=True)
@@ -61,4 +61,4 @@ def publish_message(queue_name, message):
     )
     print(f"[x] Sent: {message}")
 
-publish_message("hello-python", "RabbitMQ is running!")
+add_to_queue("hello-python", "RabbitMQ is running!")
