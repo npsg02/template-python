@@ -1,42 +1,50 @@
 #!/usr/bin/env python3
 import logging
 import os
-from pathlib import Path
-from typing import Dict
 import asyncio
+from pathlib import Path
 
 import src.common.config as config
 
 async def setup_webserver() -> None:
     """Setup web server configuration."""
-    from src.modules.api import server
-    # import src.modules.yolo_train
-    await server()
-    pass
+    # Import the new proxy API
+    from src.proxy.api.main import app
+    import uvicorn
+    
+    # Get configuration
+    from src.proxy.config import settings
+    
+    print(f"Starting {settings.app.name} on {settings.app.host}:{settings.app.port}")
+    
+    # Run the server
+    uvicorn.run(
+        app,
+        host=settings.app.host,
+        port=settings.app.port,
+        reload=settings.app.reload,
+        workers=settings.app.workers if not settings.app.reload else 1
+    )
 
 async def setup_transporter() -> None:
     """Setup transporter configuration."""
-    import src.modules.transporter
+    # Keep existing transporter if needed
     pass
 
 async def setup_gradio() -> None:
-    """Setup transporter configuration."""
-    # import src.modules.gradio_app
+    """Setup gradio configuration."""
+    # Keep existing gradio if needed
     pass
     
 async def main() -> None:
     """Main application entry point."""
     try:
-        print("Start app...")
+        print("Starting OpenAI Proxy application...")
 
-        # import src.modules.transporter
-        task1 = asyncio.create_task(setup_webserver())
-        task2 = asyncio.create_task(setup_transporter())
-        task3 = asyncio.create_task(setup_gradio())
-        await asyncio.gather(task1, task2, task3)
-        print("App started successfully.")
-      
+        # For the proxy, we mainly need the web server
+        await setup_webserver()
         
+        print("OpenAI Proxy started successfully.")
 
     except Exception as e:
         logging.error(f"Application failed to start: {e}", exc_info=True)

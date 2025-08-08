@@ -8,7 +8,7 @@ from sqlalchemy import create_engine, Engine
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import QueuePool
 
-from .models import Base
+from . import Base
 
 
 class DatabaseConfig:

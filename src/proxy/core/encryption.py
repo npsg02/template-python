@@ -2,7 +2,7 @@
 
 import base64
 import os
-from typing import str as String
+from typing import Optional, Dict, Any, List
 
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
